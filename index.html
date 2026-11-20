@@ -453,7 +453,7 @@
             color: #f5b041;
         }
 
-        /* Горизонтальный режим на телефоне: уменьшенная высота фона (обрезка снизу), плавная прокрутка и история внизу */
+        /* Горизонтальный режим на телефоне: компактный фон (обрезка снизу), плавная прокрутка и история внизу */
         @media (max-height: 500px) {
             html, body {
                 display: block;
@@ -471,6 +471,12 @@
                 padding: 10px 12px 14px;
                 overflow: visible;
                 gap: 8px;
+            }
+            #game-container.victory-open {
+                height: auto;
+                min-height: 100vh;
+                justify-content: flex-start;
+                padding: 14px 12px 32px;
             }
             #progress-panel {
                 position: relative;
@@ -544,7 +550,7 @@
                 padding: 14px 16px;
                 max-height: none;
                 overflow: visible;
-                margin: 8px auto 20px;
+                margin: 0 auto 16px;
             }
             .victory-panel h2 {
                 font-size: 1.02rem !important;
@@ -726,6 +732,7 @@
             clearInterval(typingTimer);
             isTyping = false;
             dialogueBox.style.display = 'none';
+            gameContainer.classList.remove('victory-open');
             setBackground('fon1.jpg', true);
             document.getElementById('workshop-map').style.display = 'grid';
             document.getElementById('progress-panel').style.display = 'block';
@@ -951,9 +958,11 @@
         // ================= ПОБЕДА =================
         function showVictory() {
             gameContainer.classList.add('dimmed');
+            gameContainer.classList.add('victory-open');
             document.getElementById('workshop-map').style.display = 'none';
             document.getElementById('progress-panel').style.display = 'none';
             document.getElementById('victory-panel').style.display = 'block';
+            window.scrollTo({ top: 0, behavior: 'instant' });
         }
 
         window.onload = () => {
