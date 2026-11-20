@@ -108,7 +108,7 @@
             box-shadow: 0 4px 15px rgba(243, 156, 18, 0.25);
         }
 
-        /* Диалоговое окно сюжета */
+        /* Диалоговое окно сюжета — всегда внизу */
         .dialogue-box {
             background: rgba(28, 40, 51, 0.94);
             border: 2px solid #f39c12;
@@ -116,7 +116,7 @@
             padding: 24px 32px;
             max-width: 880px;
             width: 100%;
-            margin: 0 auto 20px auto;
+            margin: auto auto 0 auto;
             box-shadow: 0 0 25px rgba(243, 156, 18, 0.3);
             position: relative;
             z-index: 10;
@@ -453,7 +453,7 @@
             color: #f5b041;
         }
 
-        /* Горизонтальный режим на телефоне: прокрутка вверх-вниз и скрытие адресной строки */
+        /* Горизонтальный режим на телефоне: прокрутка вверх-вниз и скрытие адресной строки, история остаётся внизу */
         @media (max-height: 500px) {
             html, body {
                 display: block;
@@ -465,9 +465,9 @@
             #game-container {
                 height: auto;
                 min-height: 115vh;
-                justify-content: flex-start;
+                justify-content: flex-end;
                 align-items: center;
-                padding: 14px 12px 36px;
+                padding: 14px 12px 24px;
                 overflow: visible;
                 gap: 10px;
             }
@@ -478,10 +478,11 @@
                 transform: none;
                 padding: 5px 14px;
                 font-size: 0.78rem;
+                margin-bottom: auto;
             }
             .dialogue-box {
                 padding: 12px 16px;
-                margin: 10px auto;
+                margin: auto auto 0 auto;
             }
             .dialogue-text {
                 font-size: 0.88rem;
@@ -495,7 +496,7 @@
                 transform: none;
                 gap: 10px;
                 width: 94vw;
-                margin: 6px auto;
+                margin: auto;
             }
             .station-card {
                 padding: 10px 8px;
@@ -515,7 +516,7 @@
                 padding: 12px 16px;
                 max-height: none;
                 overflow: visible;
-                margin: 6px auto;
+                margin: auto;
             }
             .minigame-panel h3 {
                 font-size: 1rem;
@@ -542,7 +543,7 @@
                 padding: 14px 18px;
                 max-height: none;
                 overflow: visible;
-                margin: 6px auto 20px;
+                margin: auto auto 16px;
             }
             .victory-panel h2 {
                 font-size: 1.05rem !important;
@@ -654,7 +655,7 @@
             <a href="https://nvhol.github.io/Pro-BGUT/testdrive.html" class="btn" style="width: 100%; margin-top: 4px;">ПЕРЕЙТИ НА ШАГ 3</a>
         </div>
 
-        <!-- Диалоговое окно вступления (на незатенённом fon1.jpg) -->
+        <!-- Диалоговое окно вступления (на незатенённом fon1.jpg, внизу) -->
         <div class="dialogue-box" id="dialogue-box" onclick="handleDialogueClick()">
             <div class="dialogue-text" id="dialogue-text"></div>
             <button class="btn" id="next-btn" onclick="event.stopPropagation(); nextDialogue();">ДАЛЕЕ</button>
