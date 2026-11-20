@@ -453,45 +453,76 @@
             color: #f5b041;
         }
 
-        /* Адаптация под горизонтальный режим телефона */
+        /* Горизонтальный режим на телефоне: прокрутка вверх-вниз и скрытие адресной строки */
         @media (max-height: 500px) {
+            html, body {
+                display: block;
+                overflow-y: auto;
+                overflow-x: hidden;
+                height: auto;
+                min-height: 100vh;
+            }
             #game-container {
-                padding: 8px 14px;
+                height: auto;
+                min-height: 115vh;
+                justify-content: flex-start;
+                align-items: center;
+                padding: 14px 12px 36px;
+                overflow: visible;
+                gap: 10px;
+            }
+            #progress-panel {
+                position: relative;
+                top: auto;
+                left: auto;
+                transform: none;
+                padding: 5px 14px;
+                font-size: 0.78rem;
             }
             .dialogue-box {
-                padding: 10px 16px;
-                margin-bottom: 6px;
+                padding: 12px 16px;
+                margin: 10px auto;
             }
             .dialogue-text {
-                font-size: 0.85rem;
-                min-height: 36px;
-                margin-bottom: 8px;
+                font-size: 0.88rem;
+                min-height: 40px;
+                margin-bottom: 10px;
             }
             .workshop-map {
+                position: relative;
+                top: auto;
+                left: auto;
+                transform: none;
                 gap: 10px;
-                top: 55%;
+                width: 94vw;
+                margin: 6px auto;
             }
             .station-card {
                 padding: 10px 8px;
                 gap: 5px;
             }
             .station-icon {
-                font-size: 1.8rem;
+                font-size: 1.6rem;
             }
             .station-title {
                 font-size: 0.82rem;
             }
             .minigame-panel {
+                position: relative;
+                top: auto;
+                left: auto;
+                transform: none;
                 padding: 12px 16px;
-                max-height: 92vh;
-                overflow-y: auto;
+                max-height: none;
+                overflow: visible;
+                margin: 6px auto;
             }
             .minigame-panel h3 {
                 font-size: 1rem;
                 margin-bottom: 3px;
             }
             .minigame-panel p.desc {
-                font-size: 0.76rem;
+                font-size: 0.78rem;
                 margin-bottom: 8px;
             }
             .bottle {
@@ -499,19 +530,26 @@
                 height: 115px;
             }
             .butter-bowl {
-                width: 75px;
-                height: 75px;
-                font-size: 2rem;
+                width: 72px;
+                height: 72px;
+                font-size: 1.9rem;
             }
             .victory-panel {
+                position: relative;
+                top: auto;
+                left: auto;
+                transform: none;
                 padding: 14px 18px;
+                max-height: none;
+                overflow: visible;
+                margin: 6px auto 20px;
             }
             .victory-panel h2 {
                 font-size: 1.05rem !important;
             }
             .competence-list li {
                 padding: 6px 10px;
-                font-size: 0.76rem;
+                font-size: 0.78rem;
             }
         }
     </style>
