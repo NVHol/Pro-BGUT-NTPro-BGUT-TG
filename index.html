@@ -453,7 +453,7 @@
             color: #f5b041;
         }
 
-        /* Горизонтальный режим на телефоне: прокрутка вверх-вниз и скрытие адресной строки, история остаётся внизу */
+        /* Горизонтальный режим на телефоне: уменьшенная высота фона (обрезка снизу), плавная прокрутка и история внизу */
         @media (max-height: 500px) {
             html, body {
                 display: block;
@@ -463,31 +463,32 @@
                 min-height: 100vh;
             }
             #game-container {
-                height: auto;
-                min-height: 115vh;
+                height: 78vh;
+                min-height: 320px;
+                background-position: top center;
                 justify-content: flex-end;
                 align-items: center;
-                padding: 14px 12px 24px;
+                padding: 10px 12px 14px;
                 overflow: visible;
-                gap: 10px;
+                gap: 8px;
             }
             #progress-panel {
                 position: relative;
                 top: auto;
                 left: auto;
                 transform: none;
-                padding: 5px 14px;
-                font-size: 0.78rem;
+                padding: 4px 12px;
+                font-size: 0.76rem;
                 margin-bottom: auto;
             }
             .dialogue-box {
-                padding: 12px 16px;
+                padding: 10px 14px;
                 margin: auto auto 0 auto;
             }
             .dialogue-text {
-                font-size: 0.88rem;
-                min-height: 40px;
-                margin-bottom: 10px;
+                font-size: 0.85rem;
+                min-height: 36px;
+                margin-bottom: 8px;
             }
             .workshop-map {
                 position: relative;
@@ -499,58 +500,58 @@
                 margin: auto;
             }
             .station-card {
-                padding: 10px 8px;
-                gap: 5px;
+                padding: 9px 8px;
+                gap: 4px;
             }
             .station-icon {
-                font-size: 1.6rem;
+                font-size: 1.5rem;
             }
             .station-title {
-                font-size: 0.82rem;
+                font-size: 0.8rem;
             }
             .minigame-panel {
                 position: relative;
                 top: auto;
                 left: auto;
                 transform: none;
-                padding: 12px 16px;
+                padding: 12px 14px;
                 max-height: none;
                 overflow: visible;
                 margin: auto;
             }
             .minigame-panel h3 {
-                font-size: 1rem;
+                font-size: 0.98rem;
                 margin-bottom: 3px;
             }
             .minigame-panel p.desc {
-                font-size: 0.78rem;
+                font-size: 0.76rem;
                 margin-bottom: 8px;
             }
             .bottle {
-                width: 42px;
-                height: 115px;
+                width: 40px;
+                height: 105px;
             }
             .butter-bowl {
-                width: 72px;
-                height: 72px;
-                font-size: 1.9rem;
+                width: 68px;
+                height: 68px;
+                font-size: 1.8rem;
             }
             .victory-panel {
                 position: relative;
                 top: auto;
                 left: auto;
                 transform: none;
-                padding: 14px 18px;
+                padding: 14px 16px;
                 max-height: none;
                 overflow: visible;
-                margin: auto auto 16px;
+                margin: 8px auto 20px;
             }
             .victory-panel h2 {
-                font-size: 1.05rem !important;
+                font-size: 1.02rem !important;
             }
             .competence-list li {
                 padding: 6px 10px;
-                font-size: 0.78rem;
+                font-size: 0.76rem;
             }
         }
     </style>
