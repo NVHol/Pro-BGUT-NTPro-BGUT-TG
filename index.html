@@ -1,0 +1,925 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Молочная ярмарка: Секрет идеального вкуса</title>
+
+    <!-- Предзагрузка фонов для плавного переключения -->
+    <link rel="preload" href="fon1.jpg" as="image">
+    <link rel="preload" href="fon2.jpg" as="image">
+    <link rel="preload" href="fon3.jpg" as="image">
+    <link rel="preload" href="fon4.jpg" as="image">
+    <link rel="preload" href="fon5.jpg" as="image">
+    <link rel="preload" href="fon6.jpg" as="image">
+    <link rel="preload" href="fon7.jpg" as="image">
+    <link rel="preload" href="fon.jpg" as="image">
+
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            user-select: none;
+        }
+
+        body {
+            background-color: #1b2631;
+            color: #fef9e7;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+        }
+
+        #game-container {
+            width: 100vw;
+            height: 100vh;
+            position: relative;
+            background-color: #1b2631;
+            background-image: url('fon1.jpg');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+            padding: 30px;
+            overflow: hidden;
+        }
+
+        /* Подложка поверх фона включается после вводной истории (на первом этапе fon1.jpg не затеняется) */
+        .bg-pattern {
+            position: absolute;
+            inset: 0;
+            background: rgba(16, 24, 34, 0.35);
+            pointer-events: none;
+            z-index: 1;
+            display: none;
+        }
+
+        #game-container.dimmed .bg-pattern {
+            display: block;
+        }
+
+        /* Предупреждение о портретной ориентации на мобильных */
+        #orientation-warning {
+            position: fixed;
+            inset: 0;
+            background: rgba(20, 28, 36, 0.97);
+            z-index: 1000;
+            display: none;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 20px;
+        }
+
+        .rotate-icon {
+            font-size: 4rem;
+            margin-bottom: 20px;
+            animation: rotatePhone 2s infinite ease-in-out;
+        }
+
+        @keyframes rotatePhone {
+            0% { transform: rotate(0deg); }
+            50% { transform: rotate(90deg); }
+            100% { transform: rotate(0deg); }
+        }
+
+        /* Панель прогресса вверху */
+        #progress-panel {
+            position: absolute;
+            top: 18px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(28, 40, 51, 0.92);
+            border: 1.5px solid #f39c12;
+            padding: 8px 22px;
+            border-radius: 20px;
+            font-size: 0.95rem;
+            font-weight: bold;
+            color: #f8c471;
+            z-index: 25;
+            display: none;
+            box-shadow: 0 4px 15px rgba(243, 156, 18, 0.25);
+        }
+
+        /* Диалоговое окно сюжета */
+        .dialogue-box {
+            background: rgba(28, 40, 51, 0.94);
+            border: 2px solid #f39c12;
+            border-radius: 14px;
+            padding: 24px 32px;
+            max-width: 880px;
+            width: 100%;
+            margin: 0 auto 20px auto;
+            box-shadow: 0 0 25px rgba(243, 156, 18, 0.3);
+            position: relative;
+            z-index: 10;
+            cursor: pointer;
+        }
+
+        .dialogue-text {
+            font-size: 1.12rem;
+            line-height: 1.6;
+            margin-bottom: 18px;
+            color: #fef5e7;
+            min-height: 60px;
+            text-align: justify;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #d68910, #f39c12);
+            color: #fff;
+            border: none;
+            padding: 10px 26px;
+            font-size: 0.98rem;
+            font-weight: bold;
+            border-radius: 8px;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(243, 156, 18, 0.4);
+            transition: all 0.25s ease;
+            text-decoration: none;
+            display: inline-block;
+            text-align: center;
+        }
+
+        .btn:hover {
+            background: linear-gradient(135deg, #f39c12, #f5b041);
+            transform: translateY(-2px);
+        }
+
+        /* Карта цеха (выбор мини-игр) */
+        .workshop-map {
+            position: absolute;
+            top: 52%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            display: none;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            width: 92vw;
+            max-width: 860px;
+            z-index: 20;
+        }
+
+        .station-card {
+            background: rgba(33, 47, 61, 0.94);
+            border: 2px solid #f39c12;
+            border-radius: 14px;
+            padding: 22px 16px;
+            text-align: center;
+            cursor: pointer;
+            transition: 0.3s;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+            box-shadow: 0 6px 20px rgba(0,0,0,0.35);
+        }
+
+        .station-card:hover:not(.completed):not(.locked) {
+            transform: translateY(-5px);
+            background: rgba(44, 62, 80, 0.98);
+            box-shadow: 0 0 20px rgba(243, 156, 18, 0.5);
+        }
+
+        .station-card.completed {
+            border-color: #2ecc71;
+            background: rgba(30, 60, 45, 0.92);
+            cursor: default;
+        }
+
+        .station-icon {
+            font-size: 2.6rem;
+        }
+
+        .station-title {
+            font-weight: bold;
+            font-size: 1.02rem;
+            color: #fdebd0;
+        }
+
+        .station-status {
+            font-size: 0.8rem;
+            padding: 3px 10px;
+            border-radius: 10px;
+            background: rgba(243, 156, 18, 0.2);
+            color: #f8c471;
+        }
+
+        .station-card.completed .station-status {
+            background: rgba(46, 204, 113, 0.25);
+            color: #82e0aa;
+        }
+
+        /* Общая панель мини-игр поверх фона */
+        .minigame-panel {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(28, 40, 51, 0.95);
+            border: 2px solid #f39c12;
+            border-radius: 16px;
+            padding: 24px;
+            box-shadow: 0 0 40px rgba(0, 0, 0, 0.7);
+            z-index: 50;
+            display: none;
+            text-align: center;
+            width: 92vw;
+            max-width: 680px;
+        }
+
+        .minigame-panel h3 {
+            color: #f39c12;
+            margin-bottom: 6px;
+            font-size: 1.2rem;
+        }
+
+        .minigame-panel p.desc {
+            color: #d5dbdb;
+            font-size: 0.88rem;
+            margin-bottom: 16px;
+        }
+
+        /* --- МИНИ-ИГРА 1: СОРТИРОВКА ЖИДКОСТЕЙ --- */
+        .bottles-row {
+            display: flex;
+            justify-content: center;
+            gap: 16px;
+            margin: 15px 0;
+            flex-wrap: wrap;
+        }
+
+        .bottle {
+            width: 54px;
+            height: 155px;
+            border: 3px solid #aeb6bf;
+            border-top: none;
+            border-radius: 0 0 18px 18px;
+            display: flex;
+            flex-direction: column-reverse;
+            overflow: hidden;
+            cursor: pointer;
+            background: rgba(255, 255, 255, 0.06);
+            transition: transform 0.2s, border-color 0.2s;
+            position: relative;
+        }
+
+        .bottle.selected {
+            transform: translateY(-14px);
+            border-color: #f39c12;
+            box-shadow: 0 0 15px rgba(243, 156, 18, 0.6);
+        }
+
+        .liquid-layer {
+            width: 100%;
+            height: 25%;
+            transition: height 0.25s ease;
+            border-top: 1px solid rgba(255,255,255,0.2);
+        }
+
+        .legend-row {
+            display: flex;
+            justify-content: center;
+            gap: 12px;
+            font-size: 0.78rem;
+            margin-bottom: 10px;
+            flex-wrap: wrap;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .legend-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            display: inline-block;
+        }
+
+        /* --- МИНИ-ИГРА 2: ВЗБИВАНИЕ МАСЛА --- */
+        .churn-area {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .butter-bowl {
+            width: 110px;
+            height: 110px;
+            border-radius: 50%;
+            background: #fdfefe;
+            border: 4px solid #f39c12;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3rem;
+            box-shadow: inset 0 0 15px rgba(0,0,0,0.15);
+            transition: background 0.3s, transform 0.1s;
+        }
+
+        .meter-wrapper {
+            width: 100%;
+            max-width: 420px;
+            height: 26px;
+            background: #17202a;
+            border: 2px solid #85929e;
+            border-radius: 13px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .sweet-spot {
+            position: absolute;
+            left: 55%;
+            width: 22%;
+            height: 100%;
+            background: rgba(46, 204, 113, 0.45);
+            border-left: 2px dashed #2ecc71;
+            border-right: 2px dashed #2ecc71;
+        }
+
+        .meter-needle {
+            position: absolute;
+            top: 0;
+            left: 0%;
+            width: 8px;
+            height: 100%;
+            background: #f39c12;
+            box-shadow: 0 0 8px #f39c12;
+        }
+
+        .progress-bar-bg {
+            width: 100%;
+            max-width: 420px;
+            height: 16px;
+            background: #17202a;
+            border-radius: 8px;
+            overflow: hidden;
+            border: 1px solid #566573;
+        }
+
+        .progress-bar-fill {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, #f39c12, #2ecc71);
+            transition: width 0.15s;
+        }
+
+        /* --- МИНИ-ИГРА 3: ВАРКА СЫРА --- */
+        .cheese-vat-box {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .thermometer-bar {
+            width: 100%;
+            max-width: 440px;
+            height: 28px;
+            background: linear-gradient(90deg, #3498db 0%, #2ecc71 45%, #2ecc71 65%, #e74c3c 100%);
+            border-radius: 14px;
+            position: relative;
+            border: 2px solid #ecf0f1;
+        }
+
+        .temp-marker {
+            position: absolute;
+            top: -4px;
+            left: 10%;
+            width: 10px;
+            height: 32px;
+            background: #fff;
+            border: 2px solid #1b2631;
+            border-radius: 4px;
+        }
+
+        .cheese-controls {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+        }
+
+        /* Финальный экран победы */
+        .victory-panel {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(23, 32, 42, 0.96);
+            border: 2px solid #f39c12;
+            border-radius: 16px;
+            padding: 28px;
+            width: 760px;
+            max-width: 94vw;
+            max-height: 90vh;
+            overflow-y: auto;
+            z-index: 60;
+            display: none;
+            box-shadow: 0 0 50px rgba(243, 156, 18, 0.45);
+            text-align: left;
+        }
+
+        .competence-list {
+            list-style: none;
+            margin: 12px 0;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .competence-list li {
+            background: rgba(243, 156, 18, 0.12);
+            border-left: 4px solid #f39c12;
+            padding: 10px 14px;
+            border-radius: 0 8px 8px 0;
+            font-size: 0.9rem;
+            line-height: 1.45;
+            color: #fef5e7;
+        }
+
+        .competence-list li strong {
+            color: #f5b041;
+        }
+
+        /* Адаптация под горизонтальный режим телефона */
+        @media (max-height: 500px) {
+            #game-container {
+                padding: 8px 14px;
+            }
+            .dialogue-box {
+                padding: 10px 16px;
+                margin-bottom: 6px;
+            }
+            .dialogue-text {
+                font-size: 0.85rem;
+                min-height: 36px;
+                margin-bottom: 8px;
+            }
+            .workshop-map {
+                gap: 10px;
+                top: 55%;
+            }
+            .station-card {
+                padding: 10px 8px;
+                gap: 5px;
+            }
+            .station-icon {
+                font-size: 1.8rem;
+            }
+            .station-title {
+                font-size: 0.82rem;
+            }
+            .minigame-panel {
+                padding: 12px 16px;
+                max-height: 92vh;
+                overflow-y: auto;
+            }
+            .minigame-panel h3 {
+                font-size: 1rem;
+                margin-bottom: 3px;
+            }
+            .minigame-panel p.desc {
+                font-size: 0.76rem;
+                margin-bottom: 8px;
+            }
+            .bottle {
+                width: 42px;
+                height: 115px;
+            }
+            .butter-bowl {
+                width: 75px;
+                height: 75px;
+                font-size: 2rem;
+            }
+            .victory-panel {
+                padding: 14px 18px;
+            }
+            .victory-panel h2 {
+                font-size: 1.05rem !important;
+            }
+            .competence-list li {
+                padding: 6px 10px;
+                font-size: 0.76rem;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div id="orientation-warning">
+        <div class="rotate-icon">📱🔄</div>
+        <h2 style="color: #f39c12; margin-bottom: 10px;">Пожалуйста, поверните устройство</h2>
+        <p style="color: #fef5e7; font-size: 1rem; max-width: 400px;">Для прохождения квеста расположите экран горизонтально.</p>
+    </div>
+
+    <div id="game-container">
+        <div class="bg-pattern"></div>
+
+        <!-- Панель прогресса -->
+        <div id="progress-panel">Выполнено заданий: <span id="progress-count">0</span> / 3</div>
+
+        <!-- Карта цеха -->
+        <div id="workshop-map" class="workshop-map">
+            <div id="card-1" class="station-card" onclick="openGame(1)">
+                <div class="station-icon">🧪</div>
+                <div class="station-title">Сортировка сырья</div>
+                <div class="station-status" id="status-1">Ожидает</div>
+            </div>
+            <div id="card-2" class="station-card" onclick="openGame(2)">
+                <div class="station-icon">🧈</div>
+                <div class="station-title">Взбить масло</div>
+                <div class="station-status" id="status-2">Ожидает</div>
+            </div>
+            <div id="card-3" class="station-card" onclick="openGame(3)">
+                <div class="station-icon">🧀</div>
+                <div class="station-title">Варка сыра</div>
+                <div class="station-status" id="status-3">Ожидает</div>
+            </div>
+        </div>
+
+        <!-- МИНИ-ИГРА 1: Сортировка жидкостей (поверх fon2.jpg) -->
+        <div id="game-1" class="minigame-panel">
+            <h3>Сортировка сырья</h3>
+            <p class="desc">Переливайте верхние слои из бутылочки в бутылочку (нажмите на одну, затем на другую), чтобы в каждой остался только один однородный компонент.</p>
+            <div class="legend-row">
+                <div class="legend-item"><span class="legend-dot" style="background:#ffffff;"></span>Молоко</div>
+                <div class="legend-item"><span class="legend-dot" style="background:#f9e79f;"></span>Сливки</div>
+                <div class="legend-item"><span class="legend-dot" style="background:#f39c12;"></span>Сыворотка</div>
+            </div>
+            <div class="bottles-row" id="bottles-container"></div>
+            <div style="margin-top: 10px;">
+                <button class="btn" style="background: #566573; padding: 6px 16px; font-size: 0.85rem;" onclick="initGame1()">Сбросить колбы</button>
+            </div>
+        </div>
+
+        <!-- МИНИ-ИГРА 2: Взбивание масла (поверх fon4.jpg) -->
+        <div id="game-2" class="minigame-panel">
+            <h3>Взбить масло</h3>
+            <p class="desc">Нажимайте кнопку «ВЗБИВАТЬ!», чтобы удерживать бегунок в зелёной зоне. Когда шкала готовности заполнится на 100%, масло соберётся в плотный пласт!</p>
+            <div class="churn-area">
+                <div class="butter-bowl" id="butter-bowl">🥛</div>
+                <div class="meter-wrapper">
+                    <div class="sweet-spot"></div>
+                    <div class="meter-needle" id="churn-needle"></div>
+                </div>
+                <div style="font-size: 0.85rem; color: #f8c471;">Готовность масла: <span id="butter-pct">0</span>%</div>
+                <div class="progress-bar-bg">
+                    <div class="progress-bar-fill" id="butter-progress"></div>
+                </div>
+                <button class="btn" style="padding: 12px 32px; font-size: 1.05rem;" onclick="whipCream()">⚡ ВЗБИВАТЬ!</button>
+            </div>
+        </div>
+
+        <!-- МИНИ-ИГРА 3: Варка сыра (поверх fon6.jpg) -->
+        <div id="game-3" class="minigame-panel">
+            <h3>Варка сыра</h3>
+            <p class="desc">Удерживайте температуру в зелёной зоне (оптимально для коагуляции белка). Подогревайте чан или охлаждайте, пока сырное зерно не созреет!</p>
+            <div class="cheese-vat-box">
+                <div style="font-size: 2.5rem;" id="cheese-icon">🍲</div>
+                <div class="thermometer-bar">
+                    <div class="temp-marker" id="temp-marker"></div>
+                </div>
+                <div style="font-size: 0.85rem; color: #82e0aa;">Формирование сырного сгустка: <span id="cheese-pct">0</span>%</div>
+                <div class="progress-bar-bg">
+                    <div class="progress-bar-fill" id="cheese-progress"></div>
+                </div>
+                <div class="cheese-controls">
+                    <button class="btn" style="background: #c0392b;" onclick="changeTemp(14)">🔥 Подогреть</button>
+                    <button class="btn" style="background: #2980b9;" onclick="changeTemp(-12)">❄️ Охладить</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Финальный экран победы (поверх fon.jpg) -->
+        <div id="victory-panel" class="victory-panel">
+            <h2 style="color: #f39c12; margin-bottom: 8px; text-align: center;">ЯРМАРКА ПРОШЛА С ОГЛУШИТЕЛЬНЫМ УСПЕХОМ!</h2>
+            <p style="margin-bottom: 12px; color: #fef5e7; text-align: center; font-size: 0.95rem;">Вся партия натуральных молочных продуктов раскуплена за считанные минуты, а ваша ферма получила гран-при гастрономической ярмарки!</p>
+            <h3 style="color: #f8c471; font-size: 1rem; margin-bottom: 6px;">Чему научило каждое задание квеста (специальность «Технология молока и молочных продуктов»):</h3>
+            <ul class="competence-list">
+                <li><strong>Сортировка сырья:</strong> Знакомит с разделением сырья на цельное молоко, сливки и сыворотку перед направлением в переработку.</li>
+                <li><strong>Взбить масло:</strong> Показывает, как механическое воздействие и контроль темпа превращают сливки в плотное сливочное масло.</li>
+                <li><strong>Варка сыра:</strong> Формирует понимание важности строгого температурного режима для коагуляции молочного белка и получения нежного сгустка.</li>
+            </ul>
+            <p style="color: #82e0aa; font-size: 0.82rem; margin-top: 10px; margin-bottom: 6px; text-align: center;">📱 Поверните телефон вертикально для комфортного просмотра Шага 3</p>
+            <a href="https://nvhol.github.io/Pro-BGUT/testdrive.html" class="btn" style="width: 100%; margin-top: 4px;">ПЕРЕЙТИ НА ШАГ 3</a>
+        </div>
+
+        <!-- Диалоговое окно вступления (на незатенённом fon1.jpg) -->
+        <div class="dialogue-box" id="dialogue-box" onclick="handleDialogueClick()">
+            <div class="dialogue-text" id="dialogue-text"></div>
+            <button class="btn" id="next-btn" onclick="event.stopPropagation(); nextDialogue();">ДАЛЕЕ</button>
+        </div>
+
+    </div>
+
+    <script>
+        function checkOrientation() {
+            const warning = document.getElementById('orientation-warning');
+            if (window.innerWidth < 900 && window.innerHeight > window.innerWidth) {
+                warning.style.display = 'flex';
+            } else {
+                warning.style.display = 'none';
+            }
+        }
+        window.addEventListener('resize', checkOrientation);
+        window.addEventListener('DOMContentLoaded', checkOrientation);
+
+        const gameContainer = document.getElementById('game-container');
+        const state = { g1: false, g2: false, g3: false };
+        let isTransitioning = false;
+
+        function setBackground(filename, dim = true) {
+            gameContainer.style.backgroundImage = `url('${filename}')`;
+            gameContainer.classList.toggle('dimmed', dim);
+        }
+
+        const introDialogue = "Нашу фермерскую сыроварню пригласили на престижную гастрономическую ярмарку! Это главный шанс заявить о себе на всю страну, но до открытия торговых рядов остались считанные часы.";
+
+        const dialogueText = document.getElementById('dialogue-text');
+        const dialogueBox = document.getElementById('dialogue-box');
+        const nextBtn = document.getElementById('next-btn');
+
+        let typingTimer = null;
+        let isTyping = false;
+
+        function typeText(text) {
+            dialogueText.innerHTML = '';
+            nextBtn.style.display = 'none';
+            isTyping = true;
+            let idx = 0;
+            clearInterval(typingTimer);
+            typingTimer = setInterval(() => {
+                if (idx < text.length) {
+                    dialogueText.innerHTML += text.charAt(idx++);
+                } else {
+                    clearInterval(typingTimer);
+                    isTyping = false;
+                    nextBtn.style.display = 'inline-block';
+                }
+            }, 22);
+        }
+
+        function handleDialogueClick() {
+            if (isTyping) {
+                clearInterval(typingTimer);
+                dialogueText.innerHTML = introDialogue;
+                isTyping = false;
+                nextBtn.style.display = 'inline-block';
+            }
+        }
+
+        // Фото 2 убрано: сразу открываем карту цеха на fon1.jpg с включённой подложкой для кнопок
+        function nextDialogue() {
+            if (isTransitioning) return;
+            clearInterval(typingTimer);
+            isTyping = false;
+            dialogueBox.style.display = 'none';
+            setBackground('fon1.jpg', true);
+            document.getElementById('workshop-map').style.display = 'grid';
+            document.getElementById('progress-panel').style.display = 'block';
+        }
+
+        function updateMapAfterWin() {
+            let done = 0;
+            for (let i = 1; i <= 3; i++) {
+                if (state['g' + i]) {
+                    done++;
+                    const card = document.getElementById('card-' + i);
+                    card.classList.add('completed');
+                    card.onclick = null;
+                    document.getElementById('status-' + i).innerText = 'Готово ✓';
+                }
+            }
+            document.getElementById('progress-count').innerText = done;
+
+            if (done === 3) {
+                isTransitioning = true;
+                document.getElementById('workshop-map').style.display = 'none';
+                document.getElementById('progress-panel').style.display = 'none';
+                setBackground('fon.jpg', false);
+                setTimeout(() => {
+                    isTransitioning = false;
+                    showVictory();
+                }, 1000);
+            } else {
+                setBackground('fon1.jpg', true);
+                document.getElementById('workshop-map').style.display = 'grid';
+                document.getElementById('progress-panel').style.display = 'block';
+            }
+        }
+
+        // Сценарии входов и выходов с паузами по 1 секунде
+        const STAGE_CONFIG = {
+            1: { introBg: 'fon2.jpg', winBg: 'fon3.jpg', init: initGame1 },
+            2: { introBg: 'fon4.jpg', winBg: 'fon5.jpg', init: initGame2 },
+            3: { introBg: 'fon6.jpg', winBg: 'fon7.jpg', init: initGame3 }
+        };
+
+        function openGame(num) {
+            if (state['g' + num] || isTransitioning) return;
+            const cfg = STAGE_CONFIG[num];
+            isTransitioning = true;
+
+            document.getElementById('workshop-map').style.display = 'none';
+            document.getElementById('progress-panel').style.display = 'none';
+            setBackground(cfg.introBg, false);
+
+            setTimeout(() => {
+                isTransitioning = false;
+                gameContainer.classList.add('dimmed');
+                document.getElementById('game-' + num).style.display = 'block';
+                cfg.init();
+            }, 1000);
+        }
+
+        function winGame(num) {
+            const cfg = STAGE_CONFIG[num];
+            state['g' + num] = true;
+            isTransitioning = true;
+
+            document.getElementById('game-' + num).style.display = 'none';
+            setBackground(cfg.winBg, false);
+
+            setTimeout(() => {
+                isTransitioning = false;
+                updateMapAfterWin();
+            }, 1000);
+        }
+
+        // ================= СОРТИРОВКА СЫРЬЯ =================
+        const COLORS = {
+            milk: '#ffffff',
+            cream: '#f9e79f',
+            whey: '#f39c12'
+        };
+        let bottles = [];
+        let selectedBottle = null;
+
+        function initGame1() {
+            bottles = [
+                ['milk', 'cream', 'whey', 'milk'],
+                ['cream', 'whey', 'milk', 'cream'],
+                ['whey', 'milk', 'cream', 'whey'],
+                []
+            ];
+            selectedBottle = null;
+            renderBottles();
+        }
+
+        function renderBottles() {
+            const container = document.getElementById('bottles-container');
+            container.innerHTML = '';
+            bottles.forEach((b, idx) => {
+                const div = document.createElement('div');
+                div.className = 'bottle' + (selectedBottle === idx ? ' selected' : '');
+                b.forEach(colorKey => {
+                    const layer = document.createElement('div');
+                    layer.className = 'liquid-layer';
+                    layer.style.background = COLORS[colorKey];
+                    div.appendChild(layer);
+                });
+                div.onclick = () => handleBottleClick(idx);
+                container.appendChild(div);
+            });
+        }
+
+        function handleBottleClick(idx) {
+            if (selectedBottle === null) {
+                if (bottles[idx].length > 0) {
+                    selectedBottle = idx;
+                    renderBottles();
+                }
+                return;
+            }
+            if (selectedBottle === idx) {
+                selectedBottle = null;
+                renderBottles();
+                return;
+            }
+
+            const from = bottles[selectedBottle];
+            const to = bottles[idx];
+            const topColor = from[from.length - 1];
+
+            if (to.length < 4 && (to.length === 0 || to[to.length - 1] === topColor)) {
+                while (from.length > 0 && from[from.length - 1] === topColor && to.length < 4) {
+                    to.push(from.pop());
+                }
+            }
+            selectedBottle = null;
+            renderBottles();
+            checkWinGame1();
+        }
+
+        function checkWinGame1() {
+            const isWin = bottles.every(b => b.length === 0 || (b.length === 4 && b.every(c => c === b[0])));
+            if (isWin && !state.g1) {
+                state.g1 = true;
+                setTimeout(() => {
+                    state.g1 = false;
+                    winGame(1);
+                }, 400);
+            }
+        }
+
+        // ================= ВЗБИТЬ МАСЛО =================
+        let churnPos = 10;
+        let butterProgress = 0;
+        let churnLoop = null;
+
+        function initGame2() {
+            churnPos = 10;
+            butterProgress = 0;
+            document.getElementById('butter-bowl').innerText = '🥛';
+            document.getElementById('butter-progress').style.width = '0%';
+            document.getElementById('butter-pct').innerText = '0';
+            clearInterval(churnLoop);
+            churnLoop = setInterval(() => {
+                churnPos = Math.max(0, churnPos - 1.6);
+                document.getElementById('churn-needle').style.left = churnPos + '%';
+
+                if (churnPos >= 53 && churnPos <= 78) {
+                    butterProgress = Math.min(100, butterProgress + 1.4);
+                }
+                document.getElementById('butter-progress').style.width = butterProgress + '%';
+                document.getElementById('butter-pct').innerText = Math.floor(butterProgress);
+
+                if (butterProgress > 50) {
+                    document.getElementById('butter-bowl').innerText = '🍦';
+                }
+                if (butterProgress >= 100) {
+                    document.getElementById('butter-bowl').innerText = '🧈';
+                    clearInterval(churnLoop);
+                    setTimeout(() => winGame(2), 500);
+                }
+            }, 60);
+        }
+
+        function whipCream() {
+            churnPos = Math.min(96, churnPos + 15);
+            const bowl = document.getElementById('butter-bowl');
+            bowl.style.transform = 'scale(1.08)';
+            setTimeout(() => bowl.style.transform = 'scale(1)', 80);
+        }
+
+        // ================= ВАРКА СЫРА =================
+        let cheeseTemp = 15;
+        let cheeseProgress = 0;
+        let cheeseLoop = null;
+
+        function initGame3() {
+            cheeseTemp = 15;
+            cheeseProgress = 0;
+            document.getElementById('cheese-icon').innerText = '🍲';
+            document.getElementById('cheese-progress').style.width = '0%';
+            document.getElementById('cheese-pct').innerText = '0';
+            clearInterval(cheeseLoop);
+            cheeseLoop = setInterval(() => {
+                cheeseTemp = Math.max(5, cheeseTemp - 0.9);
+                document.getElementById('temp-marker').style.left = cheeseTemp + '%';
+
+                if (cheeseTemp >= 43 && cheeseTemp <= 66) {
+                    cheeseProgress = Math.min(100, cheeseProgress + 1.5);
+                }
+                document.getElementById('cheese-progress').style.width = cheeseProgress + '%';
+                document.getElementById('cheese-pct').innerText = Math.floor(cheeseProgress);
+
+                if (cheeseProgress >= 100) {
+                    document.getElementById('cheese-icon').innerText = '🧀';
+                    clearInterval(cheeseLoop);
+                    setTimeout(() => winGame(3), 500);
+                }
+            }, 70);
+        }
+
+        function changeTemp(delta) {
+            cheeseTemp = Math.min(95, Math.max(5, cheeseTemp + delta));
+        }
+
+        // ================= ПОБЕДА =================
+        function showVictory() {
+            gameContainer.classList.add('dimmed');
+            document.getElementById('workshop-map').style.display = 'none';
+            document.getElementById('progress-panel').style.display = 'none';
+            document.getElementById('victory-panel').style.display = 'block';
+        }
+
+        window.onload = () => {
+            setBackground('fon1.jpg', false);
+            typeText(introDialogue);
+        };
+    </script>
+</body>
+</html>
